@@ -1,0 +1,108 @@
+#!/bin/bash
+
+# --------------------------------------
+# Private File System Project on AWS EC2
+# --------------------------------------
+
+# --------------------------------------
+# Step 0: Launch & Configure EC2 Instance (Manual)
+# --------------------------------------
+# 1. Visit: https://console.aws.amazon.com/ec2/
+# 2. Click "Launch Instance"
+# 3. Name: Private File System
+# 4. AMI: Amazon Linux 2 (or Ubuntu)
+# 5. Instance Type: t2.micro (Free Tier)
+# 6. Key Pair: Select or create (download the .pem file!)
+# 7. Configure Network Settings:
+#    In "Edit inbound rules", add:
+#      - SSH:  TCP 22   Source: My IP or 0.0.0.0/0
+#      - HTTP: TCP 8080 Source: 0.0.0.0/0 (for browser access)
+# 8. Launch the instance
+# 9. Connect via SSH:
+#    ssh -i /path/to/linuxproject1.pem ec2-user@<EC2_PUBLIC_IP>
+
+# --------------------------------------
+# Step 1: Create Directories
+# --------------------------------------
+mkdir -p ~/Private ~/Shared ~/Backup
+
+# --------------------------------------
+# Step 2: Create Group and Users
+# --------------------------------------
+sudo groupadd myfam
+sudo useradd -m yash
+sudo useradd -m nani
+sudo usermod -aG myfam yash
+sudo usermod -aG myfam nani
+
+# --------------------------------------
+# Step 3: Set Directory Permissions
+# --------------------------------------
+
+# Private folder: owner only (ec2-user)
+chmod 700 ~/Private
+
+# Shared folder: group 'myfam' can access
+sudo chgrp myfam ~/Shared
+chmod 770 ~/Shared
+
+# Backup folder: only root can access
+sudo chown root:root ~/Backup
+chmod 700 ~/Backup
+
+# --------------------------------------
+# Step 4: (Optional) Set ACL - Allow yash to read from Private
+# --------------------------------------
+sudo setfacl -m u:yash:r-- ~/Private
+
+# --------------------------------------
+# Step 5: Create HTML File in Shared Folder
+# --------------------------------------
+cat <<EOF > ~/Shared/index.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to the Shared Folder</title>
+</head>
+<body>
+    <h1>Hello from AWS EC2!</h1>
+    <p>This is the Shared folder served over HTTP.</p>
+</body>
+</html>
+EOF
+
+# --------------------------------------
+# Step 6: Launch Python HTTP Server (Port 8080)
+# --------------------------------------
+cd ~/Shared
+nohup python3 -m http.server 8080 &
+
+# --------------------------------------
+# Step 7: Allow Access to Shared Folder via EC2 Public IP
+# --------------------------------------
+# Visit: http://<EC2_PUBLIC_IP>:8080 from your browser
+
+# --------------------------------------
+# Step 8: Verify Access as Other Users (Optional)
+# --------------------------------------
+# su - yash
+# cd /home/ec2-user/Shared   # Should work if in myfam group
+# cd /home/ec2-user/Private  # Should fail unless ACL is set
+# cd /home/ec2-user/Backup   # Should be denied (root only)
+
+# --------------------------------------
+# Step 9: Push to GitHub (from local or EC2)
+# --------------------------------------
+# git init
+# git remote add origin https://github.com/<your-username>/private-file-system.git
+# git add .
+# git commit -m "Private File System project on AWS"
+# git branch -M main
+# git push -u origin main
+
+# --------------------------------------
+# Done!
+# --------------------------------------
+echo "✅ Private File System setup complete!"
+echo "🔗 Visit: http://<EC2_PUBLIC_IP>:8080"
+echo "💾 Source code ready to push to GitHub."
