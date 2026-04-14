@@ -1,0 +1,568 @@
+# ============================================================
+#     LINUX COMMANDS - SYNTAX + USE CASE + REAL ANSWER
+# ============================================================
+
+# ─────────────────────────────────────────────
+# BASICS & NAVIGATION
+# ─────────────────────────────────────────────
+
+# SYNTAX:  uname
+# SYNTAX:  uname -a
+uname
+# Use case: you logged into a new server and want to know what OS it is running
+# Answer:   Linux
+uname -a
+# Use case: want full details - kernel version, hostname, architecture
+# Answer:   Linux ip-172-31-40-12 5.10.0 #69-Ubuntu SMP x86_64 GNU/Linux
+
+# SYNTAX:  cd
+# SYNTAX:  cd <path>
+cd
+# Use case: you are deep inside /var/log/nginx and want to go home instantly
+# Answer:   takes you back to /home/ec2-user
+
+cd /var/log
+# Use case: want to check server logs directly
+# Answer:   your location changes to /var/log
+#           now ls will show files inside /var/log
+
+cd ..
+# Use case: go one level up from current folder
+# Answer:   if you are in /var/log/nginx -> moves to /var/log
+
+cd -
+# Use case: go back to previous directory you were in
+# Answer:   switches back to last visited folder
+
+# SYNTAX:  ls
+# SYNTAX:  ls <options> <path>
+ls
+# Use case: see what files and folders are in current directory
+# Answer:   devops  scripts  notes.txt  app.log
+
+ls -l
+# Use case: check permissions, owner, size, date of files
+# Answer:
+# -rw-r--r-- 1 ec2-user ec2-user 1234 Apr 10 notes.txt
+# drwxr-xr-x 2 ec2-user ec2-user 4096 Apr 10 devops
+
+ls -lt
+# Use case: find which file was modified most recently
+# Answer:   newest file appears at TOP of list
+
+ls -ltr
+# Use case: see files from oldest to newest
+# Answer:   newest file appears at BOTTOM of list
+
+ls -la
+# Use case: check if hidden files like .env or .bashrc exist
+# Answer:
+# drwxr-xr-x  .ssh
+# -rw-r--r--  .bashrc
+# -rw-r--r--  .bash_history
+
+ls -lart
+# Use case: full audit - all files including hidden sorted by time
+# Answer:   shows everything including hidden files oldest to newest
+
+# SYNTAX:  touch <filename>
+touch deploy.sh
+# Use case: create an empty file to write code in later
+# Answer:   empty file deploy.sh gets created
+#           ls will now show deploy.sh
+
+# ─────────────────────────────────────────────
+# FILE READ / WRITE
+# ─────────────────────────────────────────────
+
+# SYNTAX:  cat <filename>
+cat notes.txt
+# Use case: quickly read a small file on screen
+# Answer:   prints entire content on terminal
+#           This is my notes
+#           server ip is 10.0.0.1
+
+# SYNTAX:  cat > <filename>
+cat > newfile.txt
+# Use case: create a new file and type content directly in terminal
+# Answer:   terminal waits for your input
+#           type your content -> press Enter -> press Ctrl+d to save
+#           newfile.txt is created with that content
+
+# SYNTAX:  cat >> <filename>
+cat >> existingfile.txt
+# Use case: add more lines to file without deleting old content
+# Answer:   terminal waits for input
+#           new content gets ADDED at the bottom
+#           old content stays safe
+
+# SYNTAX:  head <filename>
+# SYNTAX:  head -n <number> <filename>
+head app.log
+# Use case: large log file, just want to see first 10 lines
+# Answer:   prints only first 10 lines
+#           2024-04-01 INFO Server started
+#           2024-04-01 INFO Listening on port 8080
+
+head -n 20 app.log
+# Use case: want first 20 lines instead of default 10
+# Answer:   prints first 20 lines of the file
+
+# SYNTAX:  tail <filename>
+# SYNTAX:  tail -n <number> <filename>
+# SYNTAX:  tail -f <filename>
+tail app.log
+# Use case: check the latest entries at bottom of log file
+# Answer:   prints last 10 lines
+#           2024-04-10 ERROR Connection timeout
+#           2024-04-10 INFO Retry attempt 3
+
+tail -n 20 app.log
+# Use case: want last 20 lines instead of default 10
+# Answer:   prints last 20 lines of the file
+
+tail -f app.log
+# Use case: watch live logs while app is running
+# Answer:   terminal stays open, prints new lines as they appear
+#           press Ctrl+c to stop
+
+# ─────────────────────────────────────────────
+# FILE / DIRECTORY OPERATIONS
+# ─────────────────────────────────────────────
+
+# SYNTAX:  rm <filename>
+# SYNTAX:  rm -rf <foldername>
+rm old.log
+# Use case: delete an unwanted log file
+# Answer:   file permanently deleted, no confirmation asked
+#           ls will no longer show old.log
+
+rm -rf oldfolder/
+# Use case: delete a folder and everything inside it forcefully
+# Answer:   entire folder and all its contents deleted permanently
+#           WARNING: no undo for this
+
+# SYNTAX:  rmdir <dirname>
+rmdir testfolder
+# Use case: remove an empty test folder after testing
+# Answer:   folder deleted if empty
+#           if files exist inside you get error:
+#           rmdir: failed to remove: Directory not empty
+
+# SYNTAX:  cp <source> <destination>
+# SYNTAX:  cp -r <sourcefolder> <destfolder>
+cp config.yml config.yml.bak
+# Use case: backup config before making changes
+# Answer:   config.yml.bak created as exact copy
+#           ls shows both files now
+
+cp -r myproject/ myproject_backup/
+# Use case: backup entire project folder
+# Answer:   entire folder copied with all files inside
+
+# SYNTAX:  mv <source> <destination>
+mv service.sh deploy.sh
+# Use case: file was named wrong, correct the name
+# Answer:   service.sh no longer exists
+#           deploy.sh now exists with same content
+
+mv deploy.sh /opt/scripts/
+# Use case: move script to correct folder location
+# Answer:   deploy.sh disappears from current folder
+#           appears inside /opt/scripts/
+
+mv -i oldfile newfile
+# Use case: safe rename - asks before overwriting if newfile already exists
+# Answer:   overwrite newfile? (y/n)
+
+mv -v oldfile newfile
+# Use case: confirm what is happening during rename
+# Answer:   renamed 'oldfile' -> 'newfile'
+
+# ─────────────────────────────────────────────
+# DOWNLOAD COMMANDS
+# ─────────────────────────────────────────────
+
+# SYNTAX:  wget <url>
+wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.113/bin/apache-tomcat-9.0.113.tar.gz
+# Use case: download tomcat directly onto server without browser
+# Answer:   shows download progress
+#           Resolving dlcdn.apache.org...
+#           100%[===========>] 11.2MB  2.5MB/s
+#           File saved: apache-tomcat-9.0.113.tar.gz
+
+# SYNTAX:  curl <url>
+# SYNTAX:  curl -o <filename> <url>
+curl http://localhost:8080/health
+# Use case: test if your API is responding correctly
+# Answer:   prints response on screen
+#           {"status":"UP","message":"Application is running"}
+#           does NOT save any file
+
+curl -o tomcat.tar.gz https://dlcdn.apache.org/tomcat.tar.gz
+# Use case: download a file using curl when wget is not installed
+# Answer:   downloads and saves as tomcat.tar.gz
+
+# ─────────────────────────────────────────────
+# SEARCH COMMANDS
+# ─────────────────────────────────────────────
+
+# SYNTAX:  grep <word> <file>
+# SYNTAX:  grep <options> <word> <file>
+grep ERROR app.log
+# Use case: find all error lines in log file
+# Answer:   prints only lines containing ERROR
+#           2024-04-10 ERROR Connection timeout
+#           2024-04-10 ERROR Disk full
+
+grep -i error app.log
+# Use case: search for error in any case - ERROR, Error, error
+# Answer:   matches and prints all variations
+
+grep -v INFO app.log
+# Use case: hide INFO lines, show only warnings and errors
+# Answer:   prints every line EXCEPT lines with INFO
+
+grep -n error config.yml
+# Use case: find exact line number of problem in config file
+# Answer:
+#           42: error_log /var/log/nginx/error.log
+#           78: error_page 404 /404.html
+
+grep -c ERROR app.log
+# Use case: count how many errors happened in log
+# Answer:   just prints a number
+#           47
+
+grep "^server" nginx.conf
+# Use case: find lines that START with word server
+# Answer:
+#           server {
+#           server_name example.com;
+
+grep "enabled$" config.txt
+# Use case: find lines that END with word enabled
+# Answer:
+#           feature_x=enabled
+#           ssl=enabled
+
+# ─────────────────────────────────────────────
+# CUT AND AWK
+# ─────────────────────────────────────────────
+
+# SYNTAX:  cut -d "<delimiter>" -f<column-number> <file>
+cut -d ":" -f1 /etc/passwd
+# Use case: get only usernames from /etc/passwd
+# Answer:
+#           root
+#           ec2-user
+#           john
+
+cut -d ":" -f1,3 /etc/passwd
+# Use case: get username and user ID together
+# Answer:
+#           root:0
+#           ec2-user:1000
+#           john:1001
+
+# SYNTAX:  awk -F "<delimiter>" '{print $<column>}' <file>
+awk -F ":" '{print $NF}' /etc/passwd
+# Use case: get the default shell (last column) of every user
+# Answer:
+#           /bin/bash
+#           /bin/bash
+#           /sbin/nologin
+
+awk -F ":" '$3>=1000 {print $1, $3}' /etc/passwd
+# Use case: list only real human users, skip system users (UID below 1000)
+# Answer:
+#           ec2-user 1000
+#           john 1001
+#           jane 1002
+
+# ─────────────────────────────────────────────
+# VIM EDITOR
+# ─────────────────────────────────────────────
+
+# SYNTAX:  vim <filename>
+vim server.conf
+# Use case: open and edit a config file on server
+# Answer:   vim opens file, you can see content
+#           press i to start typing (insert mode)
+#           press Esc to stop typing
+
+# ── COLON MODE (press : first) ──
+
+# SYNTAX:  :q
+:q
+# Use case: opened file just to read, want to close
+# Answer:   vim closes, back to terminal
+#           only works if NO changes were made
+
+# SYNTAX:  :wq
+:wq
+# Use case: edited a config file and want to save and exit
+# Answer:   file saved, vim closes, back to terminal
+
+# SYNTAX:  :q!
+:q!
+# Use case: made wrong changes and want to throw everything away
+# Answer:   vim closes WITHOUT saving, file unchanged
+
+# SYNTAX:  :w <newfilename>
+:w newcopy.conf
+# Use case: save current content as a new file (like Save As)
+# Answer:   newcopy.conf created with current content
+#           original file still open in vim
+
+# SYNTAX:  :set nu
+:set nu
+# Use case: want line numbers visible for easier navigation
+# Answer:
+#           1  server {
+#           2      listen 80;
+#           3      server_name example.com;
+
+# SYNTAX:  :<line-number>
+:42
+# Use case: error says problem on line 42, jump there directly
+# Answer:   cursor jumps instantly to line 42
+
+# SYNTAX:  :/<word>
+:/port
+# Use case: find where port is configured in large file
+# Answer:   cursor jumps to first match of port from top
+#           word highlighted in yellow
+
+# SYNTAX:  :?<word>
+:?error
+# Use case: search from bottom going upward
+# Answer:   cursor jumps to last occurrence of error
+
+# SYNTAX:  :<line>d
+:10d
+# Use case: line 10 has wrong entry, delete just that line
+# Answer:   line 10 deleted, everything shifts up
+
+# SYNTAX:  :%d
+:%d
+# Use case: want to completely rewrite file, clear everything first
+# Answer:   all lines deleted, file is now empty
+
+# SYNTAX:  :noh
+:noh
+# Use case: yellow search highlights all over, want to clear them
+# Answer:   highlights disappear, file looks normal
+
+# SYNTAX:  :<line>s/<find>/<replace>
+:5s/oldip/newip
+# Use case: fix wrong IP on line 5, first occurrence only
+# Answer:   first oldip on line 5 replaced with newip
+
+# SYNTAX:  :<line>s/<find>/<replace>/g
+:5s/oldip/newip/g
+# Use case: same wrong word appears multiple times on line 5
+# Answer:   ALL occurrences on line 5 replaced
+
+# SYNTAX:  :%s/<find>/<replace>/g
+:%s/192.168.1.1/10.0.0.1/g
+# Use case: old server IP everywhere in file, replace all at once
+# Answer:   every occurrence in entire file replaced
+#           vim shows: 12 substitutions on 8 lines
+
+# ── ESC MODE (press Esc first) ──
+
+# SYNTAX:  gg
+gg
+# Use case: at line 500, want to jump to top instantly
+# Answer:   cursor jumps to line 1 immediately
+
+# SYNTAX:  shift+g
+shift+g
+# Use case: want to jump to very end of long file
+# Answer:   cursor jumps to last line
+
+# SYNTAX:  u
+u
+# Use case: accidentally deleted a line, want it back
+# Answer:   last action undone, deleted line reappears
+
+# SYNTAX:  ctrl+r
+ctrl+r
+# Use case: undid too many times, want to go forward again
+# Answer:   redo happens, change comes back
+
+# SYNTAX:  dd
+dd
+# Use case: current line is wrong, delete entire line quickly
+# Answer:   entire line deleted instantly
+#           lines below shift up
+
+# SYNTAX:  yy
+yy
+# Use case: want to copy a line to paste elsewhere in file
+# Answer:   line copied to vim clipboard
+#           no visible change, press p to paste
+
+# SYNTAX:  p
+p
+# Use case: after yy, paste copied line below current line
+# Answer:   copied line appears below cursor
+
+# SYNTAX:  shift+p
+shift+p
+# Use case: after yy, paste copied line above current line
+# Answer:   copied line appears above cursor
+
+# ─────────────────────────────────────────────
+# USER MANAGEMENT
+# ─────────────────────────────────────────────
+
+# SYNTAX:  useradd <username>
+useradd john
+# Use case: new developer joined team, create Linux account
+# Answer:   user john created silently
+#           group called john also created automatically
+#           home directory /home/john created
+
+# SYNTAX:  id <username>
+id john
+# Use case: verify john was created and check his groups
+# Answer:   uid=1001(john) gid=1001(john) groups=1001(john)
+
+# SYNTAX:  passwd <username>
+passwd john
+# Use case: set login password for new user
+# Answer:   asks you to enter new password twice
+#           New password:
+#           Retype new password:
+#           passwd: all authentication tokens updated successfully
+
+# SYNTAX:  cat /etc/passwd
+cat /etc/passwd
+# Use case: see all user accounts on the server
+# Answer:
+#           root:x:0:0:root:/root:/bin/bash
+#           ec2-user:x:1000:1000::/home/ec2-user:/bin/bash
+#           john:x:1001:1001::/home/john:/bin/bash
+
+# SYNTAX:  cat /etc/group
+cat /etc/group
+# Use case: see all groups and their members
+# Answer:
+#           root:x:0:
+#           devops:x:1002:john,jane
+#           testing:x:1003:john
+
+# SYNTAX:  groupadd <groupname>
+groupadd devops
+# Use case: create a group for all devops team members
+# Answer:   devops group created silently
+#           cat /etc/group will now show devops
+
+# SYNTAX:  usermod -g <groupname> <username>
+usermod -g devops john
+# Use case: change john's primary group to devops
+# Answer:   john's primary group changed to devops
+#           id john will show gid=1002(devops)
+
+# SYNTAX:  usermod -aG <groupname> <username>
+usermod -aG testing john
+# Use case: add john to testing group without removing from devops
+# Answer:   john now belongs to both groups
+#           id john shows groups=1001(john),1002(devops),1003(testing)
+
+# SYNTAX:  gpasswd -d <username> <groupname>
+gpasswd -d john testing
+# Use case: john left testing team, remove him from testing group
+# Answer:   Removing user john from group testing
+#           john still in devops group
+
+# SYNTAX:  userdel -r <username>
+userdel -r john
+# Use case: employee left company, remove account and all their files
+# Answer:   user john deleted
+#           home directory /home/john deleted
+#           id john will now show: no such user
+
+# SYNTAX:  sshd -t
+sshd -t
+# Use case: edited sshd_config and want to check for syntax errors before applying
+# Answer:   if correct: no output (silence means success)
+#           if error:   /etc/ssh/sshd_config line 42: Bad configuration option
+
+# ─────────────────────────────────────────────
+# ARCHIVE / COMPRESS
+# ─────────────────────────────────────────────
+
+# SYNTAX:  tar -cf <archivename>.tar.gz <foldername>
+tar -cf myproject.tar.gz myproject/
+# Use case: take backup of entire project folder as one compressed file
+# Answer:   myproject.tar.gz created in current directory
+#           ls shows myproject.tar.gz
+
+# SYNTAX:  tar -xf <archivename>.tar.gz
+tar -xf apache-tomcat-9.0.113.tar.gz
+# Use case: extract downloaded tomcat package
+# Answer:   folder apache-tomcat-9.0.113 gets created
+#           all files extracted inside it
+
+# ─────────────────────────────────────────────
+# IMPORTANT CONFIG FILES
+# ─────────────────────────────────────────────
+
+/etc/passwd
+# What it stores: all user account info - username, UID, home dir, shell
+# Use case: audit who has accounts on the server
+
+/etc/group
+# What it stores: all groups and their members
+# Use case: check which users belong to which team/group
+
+/etc/ssh/sshd_config
+# What it stores: SSH settings - port, auth type, root login permission
+# Use case: enable password login or change SSH port
+
+/etc/sudoers
+# What it stores: who has sudo/admin access and what they can run
+# Use case: give a new user admin privileges on the server
+
+# ─────────────────────────────────────────────
+# SYMBOLS QUICK REFERENCE
+# ─────────────────────────────────────────────
+
+>
+# Syntax:   command > file
+# Use case: save output of a command into a file (overwrites)
+# Example:  ls > filelist.txt
+# Answer:   filelist.txt created with output of ls command
+
+>>
+# Syntax:   command >> file
+# Use case: add output to existing file without deleting old content
+# Example:  echo "new line" >> notes.txt
+# Answer:   new line added at bottom of notes.txt
+
+$
+# Use case: normal user prompt OR end of line in grep
+# Example:  grep "done$" file.txt  ->  finds lines ending with done
+
+#
+# Use case: root user prompt OR comments in scripts
+# Example:  lines starting with # in scripts are ignored
+
+^
+# Use case: start of line in grep search
+# Example:  grep "^server" file  ->  finds lines starting with server
+
+# Ctrl+d
+# Use case: finish input when using cat > or cat >>
+# Answer:   saves what you typed and returns to terminal
+
+# Ctrl+r
+# Use case: search through previously typed commands
+# Answer:   shows matching command as you type, press Enter to run it
+
+# Ctrl+c
+# Use case: stop any running command immediately
+# Answer:   command stops, returns to terminal prompt
